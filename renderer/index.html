@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Clawdkin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="bubble"><span id="bubble-text">!</span></div>
+
+    <svg id="buddy" viewBox="-75 -112 150 170" width="150" height="170" aria-label="Clawdkin">
+      <defs>
+        <clipPath id="groundClip"><rect id="groundRect" x="-80" y="-130" width="160" height="182"/></clipPath>
+      </defs>
+
+      <ellipse id="hole" cx="0" cy="56" rx="0" ry="0"/>
+      <ellipse id="shadow" cx="0" cy="56" rx="24" ry="2.5"/>
+      <g id="floor"></g>
+      <g id="lift">
+      <g id="under"></g>
+
+      <g clip-path="url(#groundClip)">
+        <g id="body">
+          <g id="morph"><g id="form"></g><g id="blob" opacity="0"></g></g>
+          <g id="hat"></g>
+        </g>
+      </g>
+
+      <g id="over"></g>
+      <g id="fx"></g>
+      <g id="gameLayer"></g>
+      <g id="zzz">
+        <text class="z z1" x="16" y="-26">z</text>
+        <text class="z z2" x="24" y="-38">z</text>
+        <text class="z z3" x="32" y="-50">z</text>
+      </g>
+      </g>
+      <g id="thoughtLayer"></g>
+    </svg>
+  </div>
+  <script src="core.js"></script>
+  <script src="thought.js"></script>
+  <script src="sfx.js"></script>
+  <script src="forms/spark.js"></script>
+  <script src="forms/glyph.js"></script>
+  <script src="forms/doodle.js"></script>
+  <script src="forms/clawd.js"></script>
+  <script src="forms/prompt.js"></script>
+  <script src="forms/origami.js"></script>
+  <script src="forms/blocks.js"></script>
+  <script src="forms/glass.js"></script>
+  <script src="forms/moon.js"></script>
+  <script src="forms/meta.js"></script>
+  <script src="antics.js"></script>
+  <script src="reactions.js"></script>
+  <script src="taskbar-antics.js"></script>
+  <script src="extras.js"></script>
+  <script src="game.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Clawdkin gallery 3</title>
+  <style>
+    body { margin: 0; background: #2d3640; color: #cbd3db; font: 11px "Segoe UI", sans-serif; display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; }
+    div { text-align: center; }
+    iframe { width: 150px; height: 170px; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    const cells = [
+      ['morph spark→clawd→glass', 'morph=clawd,glass,spark'], ['morph prompt→origami→moon', 'form=prompt&morph=origami,moon,prompt'],
+      ['morph blocks→glyph→doodle', 'form=blocks&morph=glyph,doodle,blocks'], ['flop (tests failed)', 'form=spark&antic=flop'],
+      ['lean (copied)', 'form=glyph&antic=lean'], ['eat (file dropped)', 'form=clawd&antic=eat'], ['land (thrown)', 'form=origami&antic=land'],
+      ['welcome back', 'form=prompt&antic=welcome'], ['morning', 'form=blocks&antic=morning'], ['dust off', 'form=moon&antic=dustoff'],
+      ['catch game', 'form=spark&game=1'], ['long turn: sweat', 'form=glass&state=working&tool=Bash&sweat=1&edits=5'],
+    ];
+    for (const [name, q] of cells) {
+      const d = document.createElement('div');
+      d.innerHTML = `<iframe src="../renderer/index.html?calm=1&${q}"></iframe>${name}`;
+      document.body.appendChild(d);
+    }
+  </script>
+</body>
+</html>

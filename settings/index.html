@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Clawdkin settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main id="card">
+    <header>
+      <svg class="mark" viewBox="-50 -50 100 100" aria-hidden="true"><g class="mark-rays"></g><circle r="13"/></svg>
+      <h1>Clawdkin</h1>
+      <button id="close" title="Close (Esc)" aria-label="Close">×</button>
+    </header>
+    <nav id="tabs" role="tablist">
+      <button role="tab" data-tab="look" aria-selected="true">Look</button>
+      <button role="tab" data-tab="play" aria-selected="false">Play</button>
+      <button role="tab" data-tab="life" aria-selected="false">Behaviour</button>
+      <button role="tab" data-tab="adv" aria-selected="false">Advanced</button>
+    </nav>
+
+    <div class="tab" id="tab-look">
+      <section>
+        <div class="row"><label for="scale">Size</label><output id="scale-out"></output></div>
+        <input id="scale" type="range" min="50" max="200" step="5">
+        <div class="row"><label for="opacity">Opacity</label><output id="opacity-out"></output></div>
+        <input id="opacity" type="range" min="30" max="100" step="5">
+      </section>
+      <section>
+        <div class="row"><span class="lbl">Form</span><button id="transform" class="link">Transform now</button></div>
+        <div class="chips" id="forms"></div>
+        <p class="hint" id="lock-hint"></p>
+        <div id="evolve-wrap">
+          <div class="row"><label for="evolve">Evolve every</label><output id="evolve-out"></output></div>
+          <input id="evolve" type="range" min="1" max="60" step="1">
+        </div>
+      </section>
+      <section>
+        <span class="lbl">Colour</span>
+        <div class="swatches" id="themes"></div>
+      </section>
+      <section>
+        <span class="lbl">Hat</span>
+        <div class="chips" id="hats"></div>
+        <div class="row inline"><label for="birthday">Birthday (party hat that day)</label><input id="birthday" type="text" placeholder="MM-DD" maxlength="5" spellcheck="false"></div>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-play" hidden>
+      <section>
+        <div class="row"><label for="silly">Silliness</label><output id="silly-out"></output></div>
+        <input id="silly" type="range" min="0" max="3" step="1">
+        <div class="tricks" id="tricks"></div>
+      </section>
+      <section id="tb-section">
+        <span class="lbl">On the taskbar</span>
+        <div class="tricks" id="tbtricks"></div>
+        <p class="hint">Hides your apps, swims through the taskbar, naps on the clock… Move the mouse near it and it scurries off.</p>
+      </section>
+      <section class="buttons">
+        <button id="catch" class="big">Play catch <small id="best"></small></button>
+        <button id="diary" class="big">Open Claude’s diary</button>
+      </section>
+      <section>
+        <p class="hint">Pet it by rubbing the mouse over it. Fling it to throw it. Drop a file on it to feed it: the file’s path is copied and Claude opens, so you can paste it in.</p>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-life" hidden>
+      <section>
+        <span class="lbl">Roaming</span>
+        <div class="chips" id="roams"></div>
+        <label class="sw win-only"><input type="checkbox" id="taskbarTricks"><span></span>Taskbar tricks while wandering</label>
+        <label class="sw win-only"><input type="checkbox" id="pokeUI"><span></span>Let it press Start and the hidden icons (only when you are away)</label>
+      </section>
+      <section>
+        <label class="sw"><input type="checkbox" id="sfx"><span></span>Sounds</label>
+        <div id="vol-wrap">
+          <div class="row"><label for="volume">Volume</label><output id="volume-out"></output></div>
+          <input id="volume" type="range" min="0" max="100" step="5">
+        </div>
+      </section>
+      <section class="toggles">
+        <label class="sw"><input type="checkbox" id="followMouse"><span></span>Eyes follow the mouse</label>
+        <label class="sw"><input type="checkbox" id="reactCopy"><span></span>Lean in when I copy something</label>
+        <label class="sw"><input type="checkbox" id="showProps"><span></span>Hold a prop for the tool in use</label>
+        <label class="sw"><input type="checkbox" id="showTrail"><span></span>Leave a paper trail of edited files</label>
+        <label class="sw"><input type="checkbox" id="showLabel"><span></span>Show label on hover</label>
+        <label class="sw"><input type="checkbox" id="sleep"><span></span>Nap when nothing is happening</label>
+        <div id="nap-wrap">
+          <div class="row"><label for="nap">Nap after</label><output id="nap-out"></output></div>
+          <input id="nap" type="range" min="1" max="30" step="1">
+        </div>
+      </section>
+    </div>
+
+    <div class="tab" id="tab-adv" hidden>
+      <section class="toggles">
+        <label class="sw"><input type="checkbox" id="quickReply"><span></span>Quick reply (experimental)</label>
+        <p class="hint">Answer Claude’s permission requests and questions from Clawdkin. While this is on, Claude waits for your answer here first, and its own prompt may not appear until the wait below runs out.</p>
+        <div id="wait-wrap">
+          <div class="row"><label for="wait">Wait for me up to</label><output id="wait-out"></output></div>
+          <input id="wait" type="range" min="5" max="120" step="5">
+        </div>
+      </section>
+      <section class="toggles">
+        <label class="sw"><input type="checkbox" id="unlockAll"><span></span>Unlock every form now</label>
+        <label class="sw" id="login-row"><input type="checkbox" id="login"><span></span><span id="login-label">Start with Windows</span></label>
+      </section>
+    </div>
+
+    <footer>Ctrl + scroll on Clawdkin resizes it · middle-click for a trick</footer>
+  </main>
+  <script src="../renderer/core.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

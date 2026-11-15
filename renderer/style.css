@@ -1,0 +1,148 @@
+:root {
+  --main: #D97757;
+  --deep: #B9583A;
+  --ink: #2A140B;
+  --glow: #F2A882;
+  --light: #F6C9A8;
+}
+
+html, body {
+  margin: 0;
+  width: 150px;
+  height: 170px;
+  overflow: hidden;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+#stage { position: relative; width: 150px; height: 170px; cursor: pointer; }
+#buddy { position: absolute; inset: 0; overflow: visible; }
+
+#body { filter: drop-shadow(0 1px 1.5px rgba(40, 15, 5, 0.35)); }
+
+/* colour classes used by every form */
+.c-main { fill: var(--main); }
+.s-main { stroke: var(--main); fill: none; }
+.f-ink { fill: var(--ink); }
+.f-light { fill: var(--light); }
+.f-heart { fill: #E8506E; }
+.line { fill: none; stroke: var(--ink); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.line.thin { stroke-width: 1.1; }
+
+/* spark */
+.ray { stroke-width: 7.4; stroke-linecap: round; }
+
+/* doodle */
+.doodle-color { fill: none; stroke: var(--main); stroke-width: 6.6; stroke-linecap: round; }
+.doodle-ink { fill: none; stroke: var(--ink); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+.doodle-ink.thick { stroke-width: 2; }
+
+#shadow { fill: #000; opacity: 0.18; }
+#hole { fill: #120a06; opacity: 0; }
+
+/* effects */
+#fx path { fill: var(--light); }
+#fx .word, #gameLayer .word { font-family: "Segoe UI", -apple-system, system-ui, sans-serif; fill: #FFF6EC; paint-order: stroke; stroke: rgba(30, 12, 4, 0.85); stroke-width: 3.4px; stroke-linejoin: round; }
+#fx .heart { fill: #E8506E; }
+
+/* party theme: slowly shift the colour wheel */
+.party #body, .party #fx { animation: party 6s linear infinite; }
+@keyframes party { from { filter: hue-rotate(0deg) drop-shadow(0 1px 1.5px rgba(40, 15, 5, 0.35)); } to { filter: hue-rotate(360deg) drop-shadow(0 1px 1.5px rgba(40, 15, 5, 0.35)); } }
+
+/* sleeping z's */
+#zzz { opacity: 0; transition: opacity 0.6s; }
+#zzz.on { opacity: 1; }
+.z { font: 600 11px "Segoe UI", -apple-system, system-ui, sans-serif; fill: var(--glow); opacity: 0; }
+#zzz.on .z { animation: floatz 3.6s ease-in-out infinite; }
+#zzz.on .z2 { animation-delay: 1.2s; font-size: 13px; }
+#zzz.on .z3 { animation-delay: 2.4s; font-size: 15px; }
+@keyframes floatz {
+  0% { opacity: 0; transform: translate(0, 6px); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(6px, -10px); }
+}
+
+/* "needs you" bubble */
+#over { transition: opacity 0.3s; }
+/* the thought cloud */
+.th { opacity: 0; transition: opacity 0.18s; pointer-events: none; }
+.th.show { opacity: 1; }
+.th-pop { transform: scale(0.82); transition: transform 0.24s cubic-bezier(.3, 1.5, .5, 1); }
+.th.show .th-pop { transform: scale(1); }
+.th-edge { fill: rgba(42, 20, 11, 0.5); }
+.th-body { fill: #FFF8F2; }
+.th-t { fill: #2A140B; font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+.th-1 { font-weight: 700; }
+.th-2 { font-style: italic; fill: #6B4A3A; }
+.th-3 { fill: #9A7B6B; font-weight: 600; }
+.th-dot { fill: #FFF8F2; stroke: rgba(42, 20, 11, 0.5); stroke-width: 1.1; }
+#bubble {
+  position: absolute; left: 50%; top: 21px;
+  min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 11px; background: #FFF8F2;
+  box-shadow: 0 1px 3px rgba(40, 15, 5, 0.35);
+  display: flex; align-items: center; justify-content: center;
+  transform: translate(-50%, 8px) scale(0.2); transform-origin: 50% 100%;
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(.3, 1.6, .5, 1), opacity 0.18s;
+  pointer-events: none;
+}
+#bubble::after {
+  content: ""; position: absolute; bottom: -4px; left: 50%; margin-left: -4px;
+  border: 4px solid transparent; border-top-color: #FFF8F2; border-bottom: 0;
+}
+#bubble.show { opacity: 1; transform: translate(-50%, 0) scale(1); animation: nudge 1.9s ease-in-out infinite 0.3s; }
+@keyframes nudge {
+  0%, 60%, 100% { transform: translate(-50%, 0) scale(1) rotate(0); }
+  68% { transform: translate(-50%, -2px) scale(1.08) rotate(-8deg); }
+  76% { transform: translate(-50%, -2px) scale(1.08) rotate(8deg); }
+  84% { transform: translate(-50%, 0) scale(1) rotate(0); }
+}
+#bubble-text { font: 800 14px/1 "Segoe UI", -apple-system, system-ui, sans-serif; color: var(--deep); }
+
+/* hover label */
+#label {
+  position: absolute; left: 50%; top: 2px; max-width: 146px;
+  transform: translate(-50%, -3px);
+  padding: 2px 8px 3px; border-radius: 999px;
+  background: rgba(24, 16, 12, 0.62); color: #FBEFE7;
+  font-size: 10.5px; line-height: 14px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  opacity: 0; transition: opacity 0.15s, transform 0.15s;
+  pointer-events: none; box-sizing: border-box;
+}
+#label.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- new forms ---------- */
+.ink-dark .f-ink { fill: #2A140B; }
+.ink-dark .line { stroke: #2A140B; }
+.p-box { fill: #FBF6EF; stroke: var(--main); stroke-width: 2.4; }
+.p-text { fill: var(--deep); opacity: 0.4; }
+.p-arrow { fill: none; stroke: #FFF8F2; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+.o-a { fill: var(--main); }
+.o-b { fill: var(--deep); }
+.b-top { fill: var(--light); }
+.b-side { fill: var(--deep); }
+.g-pane { stroke: #2A1A12; stroke-width: 1.6; stroke-linejoin: round; }
+.g0 { fill: var(--main); } .g1 { fill: #E3B24F; } .g2 { fill: var(--light); } .g3 { fill: #4E9A94; }
+.g-rim { fill: none; stroke: #2A1A12; stroke-width: 2.6; }
+.g-lead { stroke: #2A1A12; stroke-width: 1.6; }
+.m-moon { fill: #F6E7B4; }
+.m-star { fill: #FFF3C4; }
+#blob path { fill: var(--main); }
+
+/* ---------- props, satellites, moods ---------- */
+#over { filter: drop-shadow(0 1px 1.2px rgba(30, 12, 4, 0.5)); }
+.prop { fill: none; stroke: var(--light); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.prop.thin { stroke-width: 1.6; }
+.prop.thick { stroke-width: 3; }
+.prop.glassy { fill: rgba(255, 255, 255, 0.16); }
+.prop-fill { fill: var(--light); }
+.prop-term { fill: #1E1916; stroke: var(--light); stroke-width: 1.6; }
+.prop-ray { stroke: var(--main); stroke-width: 2.4; stroke-linecap: round; }
+.mood-line { fill: none; stroke: var(--light); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.mood-web { fill: none; stroke: #E6DED3; stroke-width: 0.9; stroke-linecap: round; opacity: 0.8; }
+#fx .drop { fill: #9AD4F5; }
+#stage.feeding { cursor: copy; }

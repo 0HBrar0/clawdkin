@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Claude needs you</title>
+  <link rel="stylesheet" href="../settings/settings.css">
+  <style>
+    #who { color: var(--muted); font-size: 11.5px; margin: 0 0 6px; }
+    h2 { font-size: 13.5px; font-weight: 600; margin: 8px 0 6px; line-height: 1.35; }
+    pre { max-height: 160px; overflow: auto;
+      margin: 0 0 8px; padding: 8px 9px; background: rgba(0, 0, 0, 0.32); border: 1px solid var(--line); border-radius: 8px;
+      font: 11.5px/1.45 "Cascadia Mono", Consolas, Menlo, ui-monospace, monospace; color: #F4EAE2; white-space: pre-wrap; word-break: break-word;
+      max-height: 150px; overflow: auto; user-select: text;
+    }
+    .opt {
+      display: block; width: 100%; text-align: left; margin: 0 0 5px; padding: 7px 9px; border-radius: 9px; cursor: pointer;
+      border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); font: inherit;
+    }
+    .opt:hover { background: rgba(255, 255, 255, 0.08); }
+    .opt[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+    .opt small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+    .actions { display: flex; gap: 6px; margin-top: 8px; }
+    .btn { flex: 1; border-radius: 9px; padding: 7px 8px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); color: var(--text); }
+    .btn:hover { background: rgba(255, 255, 255, 0.1); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #2A140B; }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+    #note { color: var(--muted); font-size: 11.5px; margin: 8px 0 0; }
+    #note:empty { display: none; }
+  </style>
+</head>
+<body>
+  <main id="card">
+    <header>
+      <svg class="mark" viewBox="-50 -50 100 100" aria-hidden="true"><g class="mark-rays"></g><circle r="13"/></svg>
+      <h1 id="title">Claude needs you</h1>
+      <button id="close" title="Close (Esc)" aria-label="Close">×</button>
+    </header>
+    <p id="who"></p>
+    <div id="body"></div>
+    <div class="actions" id="actions"></div>
+    <p id="note"></p>
+  </main>
+  <script src="../renderer/core.js"></script>
+  <script src="reply.js"></script>
+</body>
+</html>

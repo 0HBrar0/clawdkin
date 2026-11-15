@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Clawdkin gallery 2</title>
+  <style>
+    body { margin: 0; background: #2d3640; color: #cbd3db; font: 11px "Segoe UI", sans-serif; }
+    .row { display: flex; gap: 4px; padding: 3px 4px; align-items: center; }
+    .row b { width: 50px; }
+    .cell { text-align: center; }
+    iframe { width: 150px; height: 170px; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    const rows = [
+      ['prompt', ['form=prompt&state=idle', 'form=prompt&state=working&tool=Edit&edits=3', 'form=prompt&state=waiting', 'form=prompt&state=done', 'form=prompt&state=sleep']],
+      ['origami', ['form=origami&state=idle', 'form=origami&state=working&tool=Grep', 'form=origami&state=waiting', 'form=origami&state=done', 'form=origami&state=sleep']],
+      ['blocks', ['form=blocks&state=idle', 'form=blocks&state=working&tool=Bash', 'form=blocks&state=waiting', 'form=blocks&state=done', 'form=blocks&state=sleep']],
+      ['glass', ['form=glass&state=idle', 'form=glass&state=working&tool=WebFetch', 'form=glass&state=waiting', 'form=glass&state=done', 'form=glass&state=sleep']],
+      ['moon', ['form=moon&state=idle', 'form=moon&state=working&tool=Agent', 'form=moon&state=waiting', 'form=moon&state=done', 'form=moon&state=sleep']],
+      ['extras', ['form=spark&state=working&tool=mcp__x__y&edits=7&sweat=1&sessions=3&hat=cap', 'form=clawd&state=idle&mood=frazzled&hat=crown', 'form=glyph&state=idle&mood=dusty&hat=top', 'form=doodle&state=idle&mood=proud&hat=party', 'form=spark&state=idle&hat=santa']],
+      ['hats', ['form=prompt&hat=beanie', 'form=origami&hat=party', 'form=blocks&hat=top', 'form=glass&hat=crown', 'form=moon&hat=santa']],
+    ];
+    for (const [name, cells] of rows) {
+      const r = document.createElement('div'); r.className = 'row';
+      r.innerHTML = `<b>${name}</b>` + cells.map((c) => `<div class="cell"><iframe src="../renderer/index.html?calm=1&${c}"></iframe></div>`).join('');
+      document.body.appendChild(r);
+    }
+  </script>
+</body>
+</html>

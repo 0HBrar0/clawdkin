@@ -1,0 +1,31 @@
+{
+  "name": "clawdkin",
+  "productName": "Clawdkin",
+  "version": "0.1.0",
+  "description": "A little Claude that lives on your taskbar and shows what Claude Code is doing: it works when Claude works, waves when Claude needs you, and gets up to mischief in between.",
+  "main": "main.js",
+  "private": true,
+  "license": "MIT",
+  "author": "0HBrar0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0HBrar0/clawdkin.git"
+  },
+  "homepage": "https://github.com/0HBrar0/clawdkin#readme",
+  "bugs": "https://github.com/0HBrar0/clawdkin/issues",
+  "keywords": ["claude", "claude-code", "desktop-pet", "electron", "hooks", "anthropic", "companion"],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "electron .",
+    "setup": "node install-hooks.js",
+    "uninstall-hooks": "node install-hooks.js --uninstall",
+    "doctor": "node doctor.js",
+    "test": "node --test",
+    "preview": "node dev/serve.js"
+  },
+  "devDependencies": {
+    "electron": "^45.3.2"
+  }
+}
