@@ -82,6 +82,13 @@ try { alive = JSON.parse(fs.readFileSync(P.ALIVE, 'utf8')); } catch {}
 if (alive && Date.now() - alive.ts < 6000) ok('Clawdkin is running');
 else warn('Clawdkin is not running right now', 'Start it with: npm start');
 
+// recent errors
+try {
+  const lines = fs.readFileSync(P.ERRORS, 'utf8').trim().split('\n').filter((l) => Date.now() - Date.parse(l.slice(0, 24)) < 24 * 3600e3);
+  if (lines.length) warn(`${lines.length} error${lines.length > 1 ? 's' : ''} in the last day (${P.ERRORS}); latest:\n        ${lines[lines.length - 1].slice(0, 300)}`, 'Please include errors.log with a bug report');
+  else ok('No errors logged in the last day');
+} catch { ok('No errors logged'); }
+
 // platform notes
 if (process.platform === 'win32') {
   try {

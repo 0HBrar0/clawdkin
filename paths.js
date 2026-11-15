@@ -14,4 +14,5 @@ module.exports = {
   MEMORY: path.join(HOME, 'memory.json'),
   ALIVE: path.join(HOME, 'state', '.alive'),
   DEBUG: path.join(HOME, 'debug'),
+  ERRORS: path.join(HOME, 'errors.log'), // errors from the app and its windows (kept small)
 };

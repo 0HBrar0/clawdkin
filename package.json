@@ -1,7 +1,7 @@
 {
   "name": "clawdkin",
   "productName": "Clawdkin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A little Claude that lives on your taskbar and shows what Claude Code is doing: it works when Claude works, waves when Claude needs you, and gets up to mischief in between.",
   "main": "main.js",
   "private": true,

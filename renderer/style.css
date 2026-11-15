@@ -103,17 +103,6 @@ html, body {
 #bubble-text { font: 800 14px/1 "Segoe UI", -apple-system, system-ui, sans-serif; color: var(--deep); }
 
 /* hover label */
-#label {
-  position: absolute; left: 50%; top: 2px; max-width: 146px;
-  transform: translate(-50%, -3px);
-  padding: 2px 8px 3px; border-radius: 999px;
-  background: rgba(24, 16, 12, 0.62); color: #FBEFE7;
-  font-size: 10.5px; line-height: 14px; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
-  opacity: 0; transition: opacity 0.15s, transform 0.15s;
-  pointer-events: none; box-sizing: border-box;
-}
-#label.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- new forms ---------- */
 .ink-dark .f-ink { fill: #2A140B; }

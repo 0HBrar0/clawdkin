@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Errors from the app and its windows are written to `~/.clawdkin/errors.log` (capped), and `npm run doctor` shows recent ones.
+- A Clawdkin with its own `CLAWDKIN_HOME` gets its own Electron profile, so tests and self-checks can run beside your everyday one.
+- Removed leftover code from earlier versions.
+
 ## 0.1.0
 
 First public release.

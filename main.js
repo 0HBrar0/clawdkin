@@ -20,6 +20,17 @@ const DEBUG = process.env.CLAWDKIN_DEBUG || '';
 const TRACE = (...a) => { if (process.env.CLAWDKIN_TRACE) try { fs.appendFileSync(path.join(P.HOME, 'trace.log'), Date.now() + ' ' + a.join(' ') + '\n'); } catch {} };
 
 fs.mkdirSync(P.HOME, { recursive: true });
+// A separate data folder (CLAWDKIN_HOME) is a separate Clawdkin: give it its own Electron profile, which also
+// gives it its own single-instance lock (tests and self-checks can run beside your everyday Clawdkin).
+if (process.env.CLAWDKIN_HOME) app.setPath('userData', path.join(P.HOME, 'electron'));
+// Errors go to ~/.clawdkin/errors.log (capped), so a bug report can include them; `npm run doctor` shows recent ones.
+function logError(where, msg) {
+  const line = `${new Date().toISOString()} [${where}] ${String(msg).replace(/\s+/g, ' ').slice(0, 600)}\n`;
+  if (DEBUG) process.stdout.write('[clawdkin] ERROR ' + line);
+  try { if ((fs.statSync(P.ERRORS, { throwIfNoEntry: false })?.size || 0) > 200e3) fs.renameSync(P.ERRORS, P.ERRORS + '.old'); fs.appendFileSync(P.ERRORS, line); } catch {}
+}
+process.on('uncaughtException', (e) => logError('main', e && e.stack || e));
+process.on('unhandledRejection', (e) => logError('main', e && e.stack || e));
 if (process.platform === 'linux') app.commandLine.appendSwitch('enable-transparent-visuals'); // transparent windows on Linux
 
 const BASE_W = 150, BASE_H = 170, GROUND_Y = 164, CENTER_Y = 112; // window size, and where the feet / middle sit inside it (viewBox units)
@@ -1036,6 +1047,10 @@ if (!app.requestSingleInstanceLock()) {
   app.on('second-instance', () => { if (win) { hiddenUntil = 0; win.showInactive(); } });
   if (IS_MAC && app.dock) app.dock.hide();
   app.on('web-contents-created', (_e, wc) => {
+    const page = () => { try { return path.basename(new URL(wc.getURL()).pathname, '.html') === 'index' ? path.basename(path.dirname(new URL(wc.getURL()).pathname)) : path.basename(new URL(wc.getURL()).pathname); } catch { return 'page'; } };
+    wc.on('console-message', (ev) => { if (ev.level === 'error') logError(page(), `${ev.message} (${path.basename(String(ev.sourceId || ''))}:${ev.lineNumber})`); });
+    wc.on('render-process-gone', (_ev, d) => logError(page(), 'window crashed: ' + d.reason));
+    wc.on('preload-error', (_ev, p, err) => logError(page(), 'preload: ' + (err && err.message)));
     wc.on('will-navigate', (ev) => ev.preventDefault());
     wc.setWindowOpenHandler(() => ({ action: 'deny' }));
   });

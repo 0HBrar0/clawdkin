@@ -20,17 +20,17 @@
   let cfg = {
     form: 'auto', currentForm: 'spark', evolveMinutes: 15, silliness: 2, theme: 'terracotta',
     followMouse: true, sfx: true, volume: 0.4, sleep: true, sleepMinutes: 8, showLabel: true, opacity: 1, scale: 1,
-    hat: 'auto', birthday: '', unlockAll: false, showProps: true, showTrail: true, nightLamp: true, bestCatch: 0,
+    hat: 'auto', birthday: '', unlockAll: false, showProps: true, showTrail: true, bestCatch: 0,
   };
   // latest facts from the main process
   let st = { state: 'idle', detail: '', label: 'Idle — click to open Claude', sessions: [], tool: '', edits: 0, turnStart: 0, failTs: 0, failKind: '', mood: 'content', hasAsk: false, unlocked: ['spark', 'glyph', 'doodle', 'clawd'] };
 
   const TARGETS = {
-    idle:    { spin: 0,    wave: 0, breath: 0.035, flare: 0,     hop: 0, glow: 0,    sway: 1,   sleep: 0, eyeRy: 3.3 },
-    working: { spin: 1.25, wave: 1, breath: 0.01,  flare: -0.02, hop: 0, glow: 0.28, sway: 0,   sleep: 0, eyeRy: 2.7 },
-    waiting: { spin: 0,    wave: 0, breath: 0.02,  flare: 0.13,  hop: 1, glow: 1,    sway: 0,   sleep: 0, eyeRy: 3.6 },
-    done:    { spin: 0,    wave: 0, breath: 0.03,  flare: 0.08,  hop: 0, glow: 0.55, sway: 0,   sleep: 0, eyeRy: 3.3 },
-    sleep:   { spin: 0,    wave: 0, breath: 0.05,  flare: -0.1,  hop: 0, glow: 0,    sway: 0.4, sleep: 1, eyeRy: 3.3 },
+    idle:    { spin: 0,    wave: 0, breath: 0.035, flare: 0,     hop: 0, sway: 1,   sleep: 0, eyeRy: 3.3 },
+    working: { spin: 1.25, wave: 1, breath: 0.01,  flare: -0.02, hop: 0, sway: 0,   sleep: 0, eyeRy: 2.7 },
+    waiting: { spin: 0,    wave: 0, breath: 0.02,  flare: 0.13,  hop: 1, sway: 0,   sleep: 0, eyeRy: 3.6 },
+    done:    { spin: 0,    wave: 0, breath: 0.03,  flare: 0.08,  hop: 0, sway: 0,   sleep: 0, eyeRy: 3.3 },
+    sleep:   { spin: 0,    wave: 0, breath: 0.05,  flare: -0.1,  hop: 0, sway: 0.4, sleep: 1, eyeRy: 3.3 },
   };
   const cur = { ...TARGETS.idle };
 
