@@ -12,11 +12,55 @@
 
   // ---- tabs ----
   const tabs = [...document.querySelectorAll('#tabs button')];
-  tabs.forEach((b) => b.addEventListener('click', () => {
+  function showTab(name) {
+    const b = tabs.find((x) => x.dataset.tab === name) || tabs[0];
     tabs.forEach((x) => x.setAttribute('aria-selected', String(x === b)));
     document.querySelectorAll('.tab').forEach((p) => { p.hidden = p.id !== 'tab-' + b.dataset.tab; });
     fitNow();
-  }));
+  }
+  tabs.forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  showTab(new URLSearchParams(location.search).get('tab') || 'home');
+  if (api.onTab) api.onTab(showTab);
+
+  // ---- home: live status and quick actions ----
+  const STATE_TEXT = { idle: 'Idle', working: 'Working', waiting: 'Needs you', done: 'Done' };
+  async function refreshStatus() {
+    let st;
+    try { st = await api.getStatus(); } catch { return; }
+    $('status').dataset.state = st.state;
+    $('st-label').textContent = st.state === 'idle' ? 'Claude is idle' : st.label || STATE_TEXT[st.state];
+    $('st-sub').textContent = st.sessions.length
+      ? st.sessions.map((x) => `${x.project || 'session'}: ${STATE_TEXT[x.state] || x.state}`).join(' · ')
+      : 'No Claude Code sessions running';
+    const hadAsk = !$('answer').hidden;
+    $('answer').hidden = !st.hasAsk;
+    if (hadAsk !== st.hasAsk) fitNow();
+  }
+  refreshStatus();
+  setInterval(refreshStatus, 1500);
+  $('answer').addEventListener('click', () => api.action({ type: 'reply' }));
+  $('open-claude').addEventListener('click', () => api.action({ type: 'open-claude' }));
+  $('t-trick').addEventListener('click', () => api.trigger({ type: 'antic' }));
+  $('t-catch').addEventListener('click', () => { api.trigger({ type: 'game' }); api.closeMe(); });
+  $('t-diary').addEventListener('click', () => api.openDiary());
+  $('t-transform').addEventListener('click', () => api.trigger({ type: 'transform' }));
+  $('t-tb').addEventListener('click', () => { api.trigger({ type: 'tb' }); api.closeMe(); });
+  $('t-hide').addEventListener('click', () => api.action({ type: 'hide' }));
+  $('quit').addEventListener('click', () => api.action({ type: 'quit' }));
+  const TIPS = ['Tip: rub the mouse over it to pet it.', 'Tip: fling it to throw it.', 'Tip: drop a file on it to feed it.', 'Tip: middle-click for a quick trick.', 'Tip: Ctrl + scroll on it to resize.'];
+  $('home-tip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+
+  // ---- more: corners and state previews ----
+  [['bottom-right', 'Bottom right'], ['bottom-left', 'Bottom left'], ['top-right', 'Top right'], ['top-left', 'Top left']].forEach(([k, l]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = l;
+    b.addEventListener('click', () => api.action({ type: 'corner', corner: k }));
+    $('corners').appendChild(b);
+  });
+  [['idle', 'Idle'], ['working', 'Working'], ['waiting', 'Needs input'], ['done', 'Done']].forEach(([k, l]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = l;
+    b.addEventListener('click', () => api.action({ type: 'preview', state: k }));
+    $('previews').appendChild(b);
+  });
 
   // ---- sliders ----
   const fill = (el) => el.style.setProperty('--fill', ((el.value - el.min) / (el.max - el.min)) * 100 + '%');
@@ -123,6 +167,9 @@
   render();
 
   $('close').addEventListener('click', () => api.closeMe());
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') api.closeMe(); });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') api.closeMe();
+    else if (/^[1-5]$/.test(e.key) && document.activeElement.tagName !== 'INPUT') showTab(tabs[+e.key - 1].dataset.tab);
+  });
   fitNow();
 })();

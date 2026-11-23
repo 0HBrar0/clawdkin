@@ -22,7 +22,7 @@ npm start
 
 `npm run setup` adds Clawdkin's hooks to `~/.claude/settings.json` (it merges with what is there and saves a backup first). The first `npm start` downloads Electron (about 100 MB), so it takes a minute and needs a connection. Then start a **new** Claude Code session: hooks only load in sessions started after setup.
 
-On Windows you can start it later without a console window by double-clicking `start-clawdkin.vbs`, and right-click → **Start with Windows** keeps it around.
+On Windows you can start it later without a console window by double-clicking `start-clawdkin.vbs`, and **Start with Windows** (right-click → More) keeps it around.
 
 Something not working? Run `npm run doctor`. It checks Node, Electron, the hooks and the data folder, and says what to fix.
 
@@ -42,20 +42,21 @@ It also sweats on long turns, winces when a tool fails, keels over when tests fa
 
 <p align="center"><img src="docs/forms.png" alt="The nine forms: Spark, Glyph, Doodle, Clawd, Prompt, Origami, Blocky, Stained glass, Night"></p>
 
-It slowly evolves through the shapes Claude takes, flowing from one into the next. Spark, Glyph (the ✻ spinner), Doodle and Clawd are there from the start. The rest are earned by using Claude: **Prompt** (30 tool calls), **Origami** (5 finished tasks), **Blocky** (3 projects), **Stained glass** (3 days), **Night** (working after 10pm). You can pin one form, or unlock them all from the menu.
+It slowly evolves through the shapes Claude takes, flowing from one into the next. Spark, Glyph (the ✻ spinner), Doodle and Clawd are there from the start. The rest are earned by using Claude: **Prompt** (30 tool calls), **Origami** (5 finished tasks), **Blocky** (3 projects), **Stained glass** (3 days), **Night** (working after 10pm). You can pin one form, or unlock them all from its card.
 
 ## Things to do with it
 
-<p align="center"><img src="docs/tricks.gif" width="380" alt="Clawdkin juggling, doing a backflip, singing and waving"></p>
+<p align="center"><img src="docs/tricks.gif" width="380" alt="Clawdkin juggling, doing a backflip, singing and waving"> <img src="docs/party.gif" width="380" alt="Clawdkin throwing confetti, making heart eyes, bouncing and moonwalking"></p>
 
 - **Click it** to open Claude (the desktop app if you have it, claude.ai otherwise).
 - **Drag it** anywhere; it snaps to screen edges. **Fling it** and it bounces off the edges and lands dizzy.
 - **Pet it** by rubbing the mouse back and forth over it.
 - **Feed it** a file by dropping it on it: it eats the file, copies the path, and opens Claude so you can paste it in.
-- **Middle-click** for a trick (spin, backflip, juggle, sneeze, sing, hiccups and more). It also does them on its own when idle; *Silliness* sets how often.
+- **Middle-click** for a trick (spin, backflip, juggle, sneeze, sing, moonwalk, a confetti ta-da, heart eyes, a code sprint and more). It also does them on its own when idle; *Silliness* sets how often.
 - **Play catch**: a 20-second game where you slide it under falling sparks.
 - **Read its diary**: a hand-written page about your day together, with a sticker for every project it has seen.
-- **Ctrl + scroll** to resize it (50% to 200%). Right-click for everything else; **Settings…** has it all on four tabs.
+- **Right-click** for its card: what Claude is doing right now, a big Open Claude button, one-tap tiles for a trick, catch, the diary, a new form and hiding for 30 minutes, plus tabs for looks, play, habits and more. Keys 1 to 5 switch tabs, Esc closes it.
+- **Ctrl + scroll** to resize it (50% to 200%).
 
 ### On the taskbar (Windows)
 
@@ -71,7 +72,7 @@ Move the mouse near it while it is in front of the taskbar and it squeaks and sc
 
 ### Quick reply (experimental, off by default)
 
-Turn it on in Settings → Advanced, and when Claude asks for permission or asks a question, click Clawdkin to answer right there: Allow / Deny, or pick an option. While it is on, Claude waits for your answer on Clawdkin first (20 seconds by default), and then falls back to its own prompt. You can only *allow* what the card shows in full (a command or a web address); for file edits it sends you to Claude, which shows the diff. An answer always goes to the exact request on the card, even if another session asks something meanwhile.
+Turn it on in the card (right-click → More), and when Claude asks for permission or asks a question, click Clawdkin to answer right there: Allow / Deny, or pick an option. While it is on, Claude waits for your answer on Clawdkin first (20 seconds by default), and then falls back to its own prompt. You can only *allow* what the card shows in full (a command or a web address); for file edits it sends you to Claude, which shows the diff. An answer always goes to the exact request on the card, even if another session asks something meanwhile.
 
 ## Privacy and safety
 
@@ -86,7 +87,7 @@ Turn it on in Settings → Advanced, and when Claude asks for permission or asks
 | | Windows 10/11 | macOS | Linux |
 |---|---|---|---|
 | Status, forms, tricks, games, diary, Quick reply | ✓ | ✓ | ✓ |
-| Start at login (menu toggle) | ✓ | – | – |
+| Start with Windows (card toggle) | ✓ | – | – |
 | Wander along the bottom of the screen | ✓ | ✓ | ✓ |
 | Taskbar tricks, perching on windows | ✓ | – | – |
 | Opens the Claude desktop app on click | ✓ | ✓ | claude.ai |
@@ -99,7 +100,7 @@ It is developed and tested on Windows 11. macOS and Linux should work but have h
 npm run uninstall-hooks
 ```
 
-Then quit Clawdkin (right-click → Quit) and delete the folder, and `~/.clawdkin` if you don't want to keep its memory. The backup of your settings from setup is at `~/.claude/settings.json.clawdkin-backup`.
+Then quit Clawdkin (right-click → Quit, bottom of the card) and delete the folder, and `~/.clawdkin` if you don't want to keep its memory. The backup of your settings from setup is at `~/.claude/settings.json.clawdkin-backup`.
 
 ## Troubleshooting
 
@@ -107,7 +108,7 @@ Then quit Clawdkin (right-click → Quit) and delete the folder, and `~/.clawdki
 - **"Electron failed to install correctly"** on the first `npm start`: check `node -v` is 22.12 or newer, then delete `node_modules` and run `npm install` and `npm start` again. Behind a proxy, see [Electron's install docs](https://www.electronjs.org/docs/latest/tutorial/installation).
 - **I only want it for one project.** `node install-hooks.js --project path/to/project` writes the hooks to that project's `.claude/settings.local.json` instead.
 - **I moved the folder, or reinstalled or switched Node** (nvm, fnm, volta). The hooks point at the Node that ran setup, so run `npm run setup` again; it replaces the old entries. `npm run doctor` spots this.
-- **It is in the way.** Drag it somewhere else, make it smaller with Ctrl + scroll, or right-click → Hide for 30 minutes.
+- **It is in the way.** Drag it somewhere else, make it smaller with Ctrl + scroll, or right-click → Hide 30 min.
 
 ## How it works
 
@@ -117,7 +118,7 @@ Claude Code ──hooks──▶ hook.js ──▶ ~/.clawdkin/state/<session>.j
 ```
 
 - `hook.js`: the Claude Code hook. One small process per event writes the session's state; it exits immediately.
-- `main.js`: the always-on-top transparent window, state and memory, dragging, throwing, wandering, menus. `taskbar.js` does the taskbar tricks.
+- `main.js`: the always-on-top transparent window, state and memory, dragging, throwing, wandering, the popup cards. `taskbar.js` does the taskbar tricks.
 - `renderer/`: the character. One animation loop blends motion between states; `forms/` are the shapes, `antics.js` the tricks, `reactions.js` its reactions, `taskbar-antics.js` the taskbar poses, `thought.js` the thought cloud, `extras.js` props, hats and moods.
 - `settings/`, `diary/`, `reply/`: the small windows.
 - `tools/*.ps1`: Windows helpers (taskbar layout, pressing Start, the active window for perching).
@@ -129,7 +130,7 @@ npm test          # hook, installer and file checks (no Electron needed)
 npm run preview   # the character in a browser: http://127.0.0.1:5251/dev/gallery.html
 ```
 
-Set `CLAWDKIN_DEBUG` to `windows`, `motion`, `game`, `look`, `walk`, `tb`, `poke` or `thought` before `npm start` to run a self-check that saves snapshots to `~/.clawdkin/debug` (PowerShell: `$env:CLAWDKIN_DEBUG='windows'; npm start`, bash: `CLAWDKIN_DEBUG=windows npm start`). `CLAWDKIN_HOME` moves the data folder. `dev/make-media.ps1` rebuilds the GIFs in `docs/`.
+Set `CLAWDKIN_DEBUG` to `windows`, `motion`, `game`, `look`, `walk`, `tb`, `poke`, `thought` or `menu` before `npm start` to run a self-check that saves snapshots to `~/.clawdkin/debug` (PowerShell: `$env:CLAWDKIN_DEBUG='windows'; npm start`, bash: `CLAWDKIN_DEBUG=windows npm start`). `CLAWDKIN_HOME` moves the data folder. `dev/make-media.ps1` rebuilds the GIFs in `docs/`.
 
 Issues and pull requests are welcome. Please include the output of `npm run doctor` with bug reports, and `~/.clawdkin/errors.log` if it exists (errors from the app and its windows end up there).
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Right-click now opens one card instead of a plain menu. Its Home tab shows what Claude is doing, an Open Claude button (and Answer when Claude is waiting on you), and tiles for a trick, catch, the diary, a new form, a taskbar trick and hiding for 30 minutes. Corner moves and state previews moved to More. Keys 1 to 5 switch tabs.
+- Six new tricks: Celebrate (confetti, ta-da), Think it over, Moonwalk, Bounce bounce, Send some love and Code sprint.
+- New `docs/party.gif`, and a `menu` self-check (`CLAWDKIN_DEBUG=menu`).
+- Fixed the Start with Windows switch drawing twice.
+
 ## 0.1.1
 
 - Errors from the app and its windows are written to `~/.clawdkin/errors.log` (capped), and `npm run doctor` shows recent ones.

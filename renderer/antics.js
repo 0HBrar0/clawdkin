@@ -137,6 +137,100 @@
         }
       },
     },
+    celebrate: {
+      label: 'Celebrate', dur: 2.6,
+      run(k, f, o, fx) {
+        const crouch = seg(k, 0, 0.18), up = seg(k, 0.18, 0.62), land = seg(k, 0.62, 0.8), after = seg(k, 0.8, 1);
+        if (k < 0.18) { o.sy = 1 - 0.2 * easeIn(crouch); o.sx = 1 + 0.1 * crouch; o.expr = 'squint'; }
+        else if (k < 0.62) {
+          o.dy = -S(up * PI) * 44; o.sy = 1 + 0.1 * S(up * PI); o.sx = 1 - 0.05 * S(up * PI); o.expr = 'happy';
+          o.rot = S(up * PI * 2) * 6;
+          if (up > 0.45) fx.once('pop', () => {
+            fx.sparkles(0, -40, 14, { dist: 62, r0: 8, size: 0.9 });
+            fx.sparkles(0, -40, 8, { dist: 34, r0: 4, size: 0.55 });
+            fx.word('ta-da!', 0, -58, { size: 12, bold: true, rise: 22 });
+          });
+        } else if (k < 0.8) { o.sy = 1 - 0.14 * S(land * PI); o.sx = 1 + 0.1 * S(land * PI); o.expr = 'happy'; }
+        else { o.rot = S(after * PI * 3) * 4 * (1 - after); o.expr = 'happy'; }
+      },
+    },
+    ponder: {
+      label: 'Think it over', dur: 4.4,
+      run(k, f, o, fx) {
+        const tilt = seg(k, 0, 0.12), idea = seg(k, 0.72, 0.84), rest = seg(k, 0.84, 1);
+        if (k < 0.72) {
+          o.rot = -8 * easeInOut(tilt) + S(f.t * 1.6) * 1.5;
+          o.look = { x: -1.6, y: -1.8 };
+          o.expr = k > 0.3 && k < 0.42 ? 'closed' : 'open';
+          if (k > 0.14 && k < 0.66) fx.every('dot', 0.62, () => fx.word('·', BB.rand(-24, -12), -40, { size: 14, rise: 26 }));
+          if (k > 0.2) fx.once('hmm', () => fx.word('hmm…', -26, -50, { size: 9 }));
+        } else if (k < 0.84) {
+          o.rot = -8 * (1 - easeOut(idea)); o.dy = -S(idea * PI) * 16; o.expr = 'wide';
+          fx.once('aha', () => { fx.word('aha!', 22, -54, { size: 12, bold: true }); fx.sparkles(18, -44, 7, { dist: 26, r0: 4, size: 0.6 }); });
+        } else { o.expr = 'happy'; o.sy = 1 - 0.06 * S(rest * PI); }
+      },
+    },
+    moonwalk: {
+      label: 'Moonwalk', dur: 3.8,
+      run(k, f, o, fx) {
+        const back = seg(k, 0.06, 0.62), spin = seg(k, 0.62, 0.78), home = seg(k, 0.78, 1);
+        const step = (f.t * 3.2) % 1;
+        if (k < 0.62) {
+          o.dx = 30 * easeInOut(back);
+          o.dy = -Math.abs(S(step * PI)) * 2.5;
+          o.rot = -5 + S(step * PI * 2) * 2;
+          o.sx = 1 + 0.03 * S(step * PI * 2);
+          o.expr = 'squint';
+          o.look = { x: -1.8, y: 0 };
+        } else if (k < 0.78) {
+          o.dx = 30; o.sx = Math.cos(spin * PI * 2); o.expr = 'happy';
+          fx.once('hee', () => fx.word('hee-hee!', 34, -46, { size: 10, bold: true }));
+        } else { o.dx = 30 * (1 - easeInOut(home)); o.expr = 'happy'; o.dy = -Math.abs(S(home * PI * 3)) * 3; }
+      },
+    },
+    bounce: {
+      label: 'Bounce bounce', dur: 3.2,
+      run(k, f, o, fx) {
+        const hops = [[0.02, 0.26, 10], [0.28, 0.54, 20], [0.56, 0.9, 40]];
+        o.expr = 'happy';
+        for (const [a, b, h] of hops) {
+          if (k < a || k > b) continue;
+          const p = seg(k, a, b);
+          if (p < 0.18) { o.sy = 1 - 0.16 * S((p / 0.18) * PI); o.sx = 1 + 0.1 * S((p / 0.18) * PI); o.expr = 'squint'; }
+          else if (p < 0.9) { const q = seg(p, 0.18, 0.9); o.dy = -S(q * PI) * h; o.sy = 1 + 0.06 * S(q * PI); o.expr = h > 30 ? 'wide' : 'happy'; }
+          else { const q = seg(p, 0.9, 1); o.sy = 1 - 0.12 * S(q * PI); o.sx = 1 + 0.08 * S(q * PI); }
+          if (h > 30 && p > 0.5) { o.rot = -easeInOut(seg(p, 0.3, 0.85)) * 360; }
+        }
+        if (k > 0.9) fx.once('land', () => fx.sparkles(0, 46, 8, { spread: PI, dir: -PI / 2, dist: 26, size: 0.6 }));
+      },
+    },
+    love: {
+      label: 'Send some love', dur: 3.4,
+      run(k, f, o, fx) {
+        const env = Math.min(seg(k, 0, 0.1), 1 - seg(k, 0.88, 1));
+        o.expr = 'heart';
+        o.rot = S(f.t * 3) * 6 * env;
+        o.sx = 1 + 0.04 * S(f.t * 6) * env; o.sy = 1 - 0.04 * S(f.t * 6) * env;
+        if (k < 0.85) fx.every('h', 0.28, () => fx.heart(BB.rand(-20, 20), BB.rand(-36, -26)));
+      },
+    },
+    sprint: {
+      label: 'Code sprint', dur: 4,
+      run(k, f, o, fx) {
+        const env = Math.min(seg(k, 0, 0.06), 1 - seg(k, 0.8, 0.86));
+        if (k < 0.82) {
+          o.dy = -Math.abs(S(f.t * 26)) * 1.6 * env;
+          o.rot = S(f.t * 13) * 2 * env;
+          o.expr = 'squint';
+          o.look = { x: 0, y: 1.4 };
+          fx.every('tap', 0.22, () => fx.word(BB.pick(['tap', 'clack', '{ }', ';', '</>']), BB.rand(-30, 30), -38, { size: 8, rise: 20 }));
+        } else {
+          const p = seg(k, 0.82, 1);
+          o.dy = -S(p * PI) * 12; o.expr = 'happy';
+          fx.once('ship', () => { fx.word('shipped!', 0, -54, { size: 11, bold: true }); fx.sparkles(0, -30, 9, { dist: 44, r0: 10, size: 0.7 }); });
+        }
+      },
+    },
   };
   BB.ANTIC_NAMES = Object.keys(BB.antics);
 })();

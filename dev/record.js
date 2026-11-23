@@ -33,6 +33,14 @@ const SCENES = {
     [11.6, "__buddy.form('prompt')"],
     [13.2, "__buddy.antic('wave')"],
   ] },
+  party: { form: 'spark', secs: 16, steps: [
+    [0.2, "__buddy.antic('celebrate')"],
+    [3.0, "__buddy.antic('love')"],
+    [6.6, "__buddy.form('glyph')"],
+    [7.6, "__buddy.antic('bounce')"],
+    [10.9, "__buddy.form('clawd')"],
+    [11.8, "__buddy.antic('moonwalk')"],
+  ] },
 };
 
 async function record(name) {

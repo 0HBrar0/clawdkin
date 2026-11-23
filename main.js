@@ -2,7 +2,7 @@
 // A tiny always-on-top transparent window that shows a Claude motif and mirrors what Claude Code
 // sessions are doing (~/.clawdkin/state, written by hook.js). It also keeps Clawdkin's memory, lets it
 // wander, be thrown and fed, and hosts the settings, diary and quick-reply windows.
-const { app, BrowserWindow, ipcMain, screen, shell, Menu, clipboard, powerMonitor } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, shell, clipboard, powerMonitor } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn, execFile } = require('child_process');
@@ -46,6 +46,8 @@ const ANTICS = [
   ['spin', 'Spin till dizzy'], ['flip', 'Backflip'], ['peek', 'Hide and peek'], ['stretch', 'Big stretch'],
   ['shake', 'Wet-dog shake'], ['juggle', 'Juggle'], ['sneeze', 'Sneeze'], ['roll', 'Roll around'],
   ['wave', 'Wave hello'], ['sing', 'Sing a little'], ['hiccup', 'Hiccups'],
+  ['celebrate', 'Celebrate'], ['ponder', 'Think it over'], ['moonwalk', 'Moonwalk'], ['bounce', 'Bounce bounce'],
+  ['love', 'Send some love'], ['sprint', 'Code sprint'],
 ];
 const THEMES = [['terracotta', 'Terracotta'], ['ember', 'Ember'], ['sand', 'Sand'], ['ivory', 'Ivory'], ['charcoal', 'Charcoal'], ['lavender', 'Lavender'], ['party', 'Party (shifts colour)']];
 const HATS = [['auto', 'Seasonal'], ['none', 'None'], ['party', 'Party hat'], ['top', 'Top hat'], ['beanie', 'Beanie'], ['crown', 'Crown'], ['cap', 'Propeller cap'], ['santa', 'Santa hat']];
@@ -694,15 +696,16 @@ function popup(file, W, H, opts = {}) {
     webPreferences: { preload: path.join(ROOT, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
   w.setAlwaysOnTop(true, 'screen-saver');
-  w.loadFile(path.join(ROOT, file));
+  w.loadFile(path.join(ROOT, file), opts.query ? { query: opts.query } : undefined);
   w.once('ready-to-show', () => { w.show(); w.focus(); });
   if (!opts.sticky) w.on('blur', () => { if (!w.isDestroyed() && !DEBUG) w.close(); });
   return w;
 }
-function openSettings() {
-  if (settingsWin) { settingsWin.show(); settingsWin.focus(); return; }
+function openSettings(tab) {
+  const t = typeof tab === 'string' ? tab : 'home';
+  if (settingsWin) { send(settingsWin, 'tab', t); settingsWin.show(); settingsWin.focus(); return; }
   stopRoam(true);
-  settingsWin = popup('settings/index.html', 330, 520);
+  settingsWin = popup('settings/index.html', 340, 520, { query: { tab: t } });
   settingsWin.on('closed', () => { settingsWin = null; });
 }
 function openDiary() {
@@ -762,84 +765,25 @@ function setPreview(state) {
   preview = { st: { state, detail: '', ...extra }, until: Date.now() + 8000 }; pushState();
 }
 
-function showMenu() {
-  const st = computeState();
-  const sessionItems = st.sessions.filter(s => s.state !== 'idle').slice(0, 8).map(s => ({
-    label: `${s.state === 'waiting' ? '●' : s.state === 'working' ? '◐' : '○'}  ${s.project || 'session'} — ${s.state === 'waiting' ? 'needs you' : s.state}`, enabled: false,
-  }));
-  const pct = Math.round(scale() * 100);
-  const check = (key, label) => ({ label, type: 'checkbox', checked: !!cfg[key], click: (i) => setConfig({ [key]: i.checked }) });
-  const tpl = [
-    { label: 'Open Claude', click: openClaude },
-    ...(st.hasAsk ? [{ label: st.detail === 'question' ? 'Answer Claude’s question…' : 'Answer the permission request…', click: openReply }] : []),
-    { type: 'separator' },
-    ...(sessionItems.length ? sessionItems : [{ label: 'No active Claude Code sessions', enabled: false }]),
-    { type: 'separator' },
-    { label: 'Play catch (20 seconds)', click: playCatch },
-    { label: 'Do something silly', submenu: [
-      { label: 'Surprise me', click: () => trigger({ type: 'antic' }) },
-      { type: 'separator' },
-      ...ANTICS.map(([k, l]) => ({ label: l, click: () => trigger({ type: 'antic', name: k }) })),
-    ] },
-    { label: 'Claude’s diary…', click: openDiary },
-    { type: 'separator' },
-    { label: 'Form', submenu: [
-      { label: 'Evolve over time', type: 'radio', checked: cfg.form === 'auto', click: () => setConfig({ form: 'auto' }) },
-      { type: 'separator' },
-      ...FORMS.map(([k, l]) => formAvailable(k)
-        ? { label: l, type: 'radio', checked: cfg.form === k, click: () => setConfig({ form: k }) }
-        : { label: `${l.split('  ')[0]}  (locked: ${UNLOCKS[k].prog(mem)})`, enabled: false }),
-      { type: 'separator' },
-      { label: 'Transform now', click: () => trigger({ type: 'transform' }) },
-      { label: 'Evolve every', submenu: [2, 5, 15, 30, 60].map(m => ({ label: `${m} minutes`, type: 'radio', checked: cfg.evolveMinutes === m, click: () => setConfig({ evolveMinutes: m, form: 'auto' }) })) },
-      check('unlockAll', 'Unlock every form now'),
-    ] },
-    { label: 'Hat', submenu: HATS.map(([k, l]) => ({ label: l, type: 'radio', checked: cfg.hat === k, click: () => setConfig({ hat: k }) })) },
-    { label: 'Colour', submenu: THEMES.map(([k, l]) => ({ label: l, type: 'radio', checked: cfg.theme === k, click: () => setConfig({ theme: k }) })) },
-    { label: `Size (${pct}%)`, submenu: [
-      { label: 'Bigger', click: () => setConfig({ scale: Math.round((scale() + 0.1) * 100) / 100 }) },
-      { label: 'Smaller', click: () => setConfig({ scale: Math.round((scale() - 0.1) * 100) / 100 }) },
-      { label: 'Reset to 100%', click: () => setConfig({ scale: 1 }) },
-      { type: 'separator' },
-      { label: 'Size slider…', click: openSettings },
-      { label: 'Tip: Ctrl + scroll on Clawdkin', enabled: false },
-    ] },
-    { type: 'separator' },
-    { label: 'Silliness', submenu: SILLY.map((l, i) => ({ label: l, type: 'radio', checked: cfg.silliness === i, click: () => setConfig({ silliness: i }) })) },
-    { label: 'Roaming', submenu: [
-      ...ROAMS.map(([k, l]) => ({ label: l, type: 'radio', checked: cfg.roam === k, click: () => setConfig({ roam: k }) })),
-      ...(IS_WIN ? [
-        { type: 'separator' },
-        check('taskbarTricks', 'Taskbar tricks while wandering'),
-        check('pokeUI', 'Let it press Start and the hidden icons'),
-        { label: 'Do a taskbar trick', submenu: [{ label: 'Surprise me', click: () => startTrick(null) }, { type: 'separator' }, ...tb.NAMES.map(([k, l]) => ({ label: l, click: () => startTrick(k) }))] },
-      ] : []),
-    ] },
-    { label: 'Behaviour', submenu: [
-      check('sfx', 'Sounds'),
-      check('followMouse', 'Eyes follow the mouse'),
-      check('reactCopy', 'Lean in when I copy something'),
-      check('showProps', 'Hold a prop for the tool in use'),
-      check('showTrail', 'Leave a paper trail of edited files'),
-      check('sleep', 'Nap when nothing is happening'),
-      check('showLabel', 'Show what Claude is doing on hover'),
-      { type: 'separator' },
-      check('quickReply', 'Quick reply: answer Claude from Clawdkin (experimental)'),
-    ] },
-    { label: 'Move to corner', submenu: [
-      { label: 'Bottom right', click: () => moveToCorner('bottom-right') },
-      { label: 'Bottom left', click: () => moveToCorner('bottom-left') },
-      { label: 'Top right', click: () => moveToCorner('top-right') },
-      { label: 'Top left', click: () => moveToCorner('top-left') },
-    ] },
-    { label: 'Preview a state', submenu: [['idle', 'Idle'], ['working', 'Working'], ['waiting', 'Needs input'], ['done', 'Done']].map(([s, l]) => ({ label: l, click: () => setPreview(s) })) },
-    { type: 'separator' },
-    { label: 'Settings…', click: openSettings },
-    { label: 'Hide for 30 minutes', click: () => { stopRoam(false); hiddenUntil = Date.now() + 30 * 60 * 1000; win.hide(); } },
-    ...(IS_WIN ? [{ label: 'Start with Windows', type: 'checkbox', checked: loginEnabled(), click: (i) => setLogin(i.checked) }] : []),
-    { label: 'Quit Clawdkin', click: () => app.quit() },
-  ];
-  Menu.buildFromTemplate(tpl).popup({ window: win });
+// Right-click opens the Clawdkin card on its Home tab (the old native menu is gone).
+function showMenu() { openSettings('home'); }
+function statusData() {
+  const st = current || {};
+  return {
+    state: st.state || 'idle', label: st.label || '', detail: st.detail || '', hasAsk: !!st.hasAsk,
+    sessions: (st.sessions || []).filter((s) => s.state !== 'idle').slice(0, 6),
+    hidden: !!hiddenUntil, win: IS_WIN,
+  };
+}
+function doAction(a) {
+  if (!a) return;
+  const closeCard = () => { if (settingsWin && !settingsWin.isDestroyed()) settingsWin.close(); };
+  if (a.type === 'open-claude') { closeCard(); openClaude(); }
+  else if (a.type === 'reply') { closeCard(); openReply(); }
+  else if (a.type === 'hide') { closeCard(); stopRoam(false); hiddenUntil = Date.now() + 30 * 60 * 1000; win.hide(); }
+  else if (a.type === 'corner') { closeCard(); moveToCorner(a.corner); }
+  else if (a.type === 'preview') setPreview(a.state);
+  else if (a.type === 'quit') app.quit();
 }
 
 // ---------- debug ----------
@@ -856,6 +800,10 @@ async function debugSelfCheck() {
   if (DEBUG === 'windows') {
     openSettings(); await wait(1400); await shot(settingsWin, 'settings');
     console.log('[clawdkin] settings bounds', JSON.stringify(settingsWin.getBounds()));
+    for (const t of ['look', 'play', 'life', 'adv']) {
+      settingsWin.webContents.executeJavaScript(`document.querySelector('#tabs [data-tab=${t}]').click()`);
+      await wait(500); await shot(settingsWin, 'settings-' + t);
+    }
     settingsWin.close(); await wait(300);
     openDiary(); await wait(1400); await shot(diaryWin, 'diary'); diaryWin.close(); await wait(300);
     debugAsk = current.ask = { kind: 'permission', tool: 'Bash', summary: 'npm run build && npm test -- --watch=false', full: true, project: 'my-project', reqId: 'debug-1' };
@@ -870,6 +818,21 @@ async function debugSelfCheck() {
     console.log('[clawdkin] answer file', fs.existsSync(path.join(REQ_DIR, 'debug-1.answer.json')) ? fs.readFileSync(path.join(REQ_DIR, 'debug-1.answer.json'), 'utf8') : 'MISSING');
     for (const f of ['debug-1.json', 'debug-1.answer.json']) try { fs.unlinkSync(path.join(REQ_DIR, f)); } catch {}
     cfg.quickReply = false; debugAsk = current.ask = null;
+  }
+  if (DEBUG === 'menu') {
+    // a real right-click inside the pet window must open the card on Home, never a native menu
+    win.webContents.executeJavaScript("window.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }))");
+    await wait(1600);
+    console.log('[clawdkin] card after right-click', settingsWin ? 'open' : 'MISSING');
+    if (settingsWin) {
+      await shot(settingsWin, 'menu-card');
+      const tab = await settingsWin.webContents.executeJavaScript("document.querySelector('#tabs [aria-selected=true]').dataset.tab");
+      console.log('[clawdkin] card tab', tab);
+      settingsWin.webContents.executeJavaScript("document.getElementById('t-trick').click()");
+      await wait(400);
+      settingsWin.webContents.executeJavaScript("document.querySelector('#tabs [data-tab=adv]').click()");
+      await wait(500); await shot(settingsWin, 'menu-more');
+    }
   }
   if (DEBUG === 'motion') {
     const home = { ...win.getBounds() };
@@ -1035,6 +998,8 @@ ipcMain.on('open-diary', openDiary);
 ipcMain.on('answer', (_e, ans) => answer(ans));
 ipcMain.on('file-dropped', (_e, p) => fileDropped(p));
 ipcMain.on('menu', showMenu);
+ipcMain.handle('get-status', () => statusData());
+ipcMain.on('action', (_e, a) => doAction(a));
 ipcMain.on('close-me', (e) => { const w = BrowserWindow.fromWebContents(e.sender); if (w && w !== win) w.close(); });
 ipcMain.on('fit-me', (e, h) => { const w = BrowserWindow.fromWebContents(e.sender); if (w && w !== win) fit(w, h); });
 ipcMain.on('set-login', (_e, on) => setLogin(on));

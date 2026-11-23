@@ -1,4 +1,4 @@
-# Rebuilds the README media in docs/: hero.gif, tricks.gif and forms.png.
+# Rebuilds the README media in docs/: hero.gif, tricks.gif, party.gif and forms.png.
 # Needs ffmpeg on PATH. Run from the repo root:  pwsh dev/make-media.ps1
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
@@ -20,6 +20,7 @@ function Make-Gif($scene, $out) {
 }
 Make-Gif 'hero' (Join-Path $docs 'hero.gif')
 Make-Gif 'tricks' (Join-Path $docs 'tricks.gif')
+Make-Gif 'party' (Join-Path $docs 'party.gif')
 
 # forms.png: the nine forms in a row
 & $electron (Join-Path $root 'dev\record.js') forms (Join-Path $tmp 'forms') | Out-Host

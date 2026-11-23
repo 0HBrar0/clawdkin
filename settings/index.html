@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
-  <title>Clawdkin settings</title>
+  <title>Clawdkin</title>
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
@@ -14,13 +14,38 @@
       <button id="close" title="Close (Esc)" aria-label="Close">×</button>
     </header>
     <nav id="tabs" role="tablist">
-      <button role="tab" data-tab="look" aria-selected="true">Look</button>
+      <button role="tab" data-tab="home" aria-selected="true">Home</button>
+      <button role="tab" data-tab="look" aria-selected="false">Look</button>
       <button role="tab" data-tab="play" aria-selected="false">Play</button>
-      <button role="tab" data-tab="life" aria-selected="false">Behaviour</button>
-      <button role="tab" data-tab="adv" aria-selected="false">Advanced</button>
+      <button role="tab" data-tab="life" aria-selected="false">Habits</button>
+      <button role="tab" data-tab="adv" aria-selected="false">More</button>
     </nav>
 
-    <div class="tab" id="tab-look">
+    <div class="tab" id="tab-home">
+      <section class="status" id="status" data-state="idle">
+        <span class="dot" aria-hidden="true"></span>
+        <div class="st-text">
+          <div id="st-label">Idle</div>
+          <div class="sub" id="st-sub">No Claude Code sessions running</div>
+        </div>
+      </section>
+      <button id="answer" class="primary pulse" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>Answer Claude’s request</span></button>
+      <button id="open-claude" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg><span>Open Claude</span></button>
+      <div class="tiles">
+        <button class="tile" id="t-trick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg><span>Do a trick</span></button>
+        <button class="tile" id="t-catch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4.5 9.5c3 1.5 12 1.5 15 0M4.5 14.5c3-1.5 12-1.5 15 0"/></svg><span>Play catch</span></button>
+        <button class="tile" id="t-diary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg><span>Diary</span></button>
+        <button class="tile" id="t-transform"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span>Transform</span></button>
+        <button class="tile win-only" id="t-tb"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 17h2M11 17h2M15 17h2M12 4v6M9 7l3 3 3-3"/></svg><span>Taskbar trick</span></button>
+        <button class="tile" id="t-hide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><path d="M4 4l16 16"/></svg><span>Hide 30 min</span></button>
+      </div>
+      <div class="home-foot">
+        <span class="hint" id="home-tip">Tip: rub the mouse over it to pet it.</span>
+        <button class="link quiet" id="quit">Quit</button>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-look" hidden>
       <section>
         <div class="row"><label for="scale">Size</label><output id="scale-out"></output></div>
         <input id="scale" type="range" min="50" max="200" step="5">
@@ -86,7 +111,7 @@
         <label class="sw"><input type="checkbox" id="reactCopy"><span></span>Lean in when I copy something</label>
         <label class="sw"><input type="checkbox" id="showProps"><span></span>Hold a prop for the tool in use</label>
         <label class="sw"><input type="checkbox" id="showTrail"><span></span>Leave a paper trail of edited files</label>
-        <label class="sw"><input type="checkbox" id="showLabel"><span></span>Show label on hover</label>
+        <label class="sw"><input type="checkbox" id="showLabel"><span></span>Show what Claude is doing on hover</label>
         <label class="sw"><input type="checkbox" id="sleep"><span></span>Nap when nothing is happening</label>
         <div id="nap-wrap">
           <div class="row"><label for="nap">Nap after</label><output id="nap-out"></output></div>
@@ -96,6 +121,15 @@
     </div>
 
     <div class="tab" id="tab-adv" hidden>
+      <section>
+        <span class="lbl">Move to a corner</span>
+        <div class="chips" id="corners"></div>
+      </section>
+      <section>
+        <span class="lbl">Preview a state</span>
+        <div class="chips" id="previews"></div>
+        <p class="hint">Shows each Claude Code state for a few seconds.</p>
+      </section>
       <section class="toggles">
         <label class="sw"><input type="checkbox" id="quickReply"><span></span>Quick reply (experimental)</label>
         <p class="hint">Answer Claude’s permission requests and questions from Clawdkin. While this is on, Claude waits for your answer here first, and its own prompt may not appear until the wait below runs out.</p>
@@ -110,7 +144,7 @@
       </section>
     </div>
 
-    <footer>Ctrl + scroll on Clawdkin resizes it · middle-click for a trick</footer>
+    <footer>Right-click Clawdkin for this card · Ctrl + scroll resizes it</footer>
   </main>
   <script src="../renderer/core.js"></script>
   <script src="settings.js"></script>
