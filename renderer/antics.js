@@ -223,7 +223,11 @@
           o.rot = S(f.t * 13) * 2 * env;
           o.expr = 'squint';
           o.look = { x: 0, y: 1.4 };
-          fx.every('tap', 0.22, () => fx.word(BB.pick(['tap', 'clack', '{ }', ';', '</>']), BB.rand(-30, 30), -38, { size: 8, rise: 20 }));
+          // one word per beat in its own lane, short-lived, and done before "shipped!" so they never pile up
+          if (k < 0.6) fx.every('tap', 0.34, () => {
+            const n = Math.round(k * 4 / 0.34); // beat number, from the trick's own clock
+            fx.word(['tap', '{ }', 'clack', '</>', ';'][n % 5], [-28, 22, -6, 30][n % 4], n % 2 ? -34 : -42, { size: 8, rise: 16, life: 650 });
+          });
         } else {
           const p = seg(k, 0.82, 1);
           o.dy = -S(p * PI) * 12; o.expr = 'happy';
