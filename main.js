@@ -31,6 +31,9 @@ function logError(where, msg) {
 }
 process.on('uncaughtException', (e) => logError('main', e && e.stack || e));
 process.on('unhandledRejection', (e) => logError('main', e && e.stack || e));
+// A 150x170 window is cheaper to draw on the CPU than through the GPU process: on Windows this saves about a
+// third of its CPU and 80 MB, and doesn't wake a laptop's discrete GPU. CLAWDKIN_GPU=1 turns the GPU back on.
+if (process.platform === 'win32' && process.env.CLAWDKIN_GPU !== '1') app.disableHardwareAcceleration();
 if (process.platform === 'linux') app.commandLine.appendSwitch('enable-transparent-visuals'); // transparent windows on Linux
 
 const BASE_W = 150, BASE_H = 170, GROUND_Y = 164, CENTER_Y = 112; // window size, and where the feet / middle sit inside it (viewBox units)

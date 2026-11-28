@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Much lighter on the machine. Animation is now capped by what is on screen (60 fps for tricks, 30 while Claude works, 20 when idle, 15 asleep) instead of running at the display's refresh rate, which on a 165 Hz laptop made a working Clawdkin use about 60% of a CPU core. The bubble wiggle, sleeping z's and party colours moved from endless CSS animations onto the same capped loop, and sparkles no longer run their own animation loops. On Windows it also draws without the GPU process, which is cheaper for a window this small and doesn't wake a laptop's discrete GPU (`CLAWDKIN_GPU=1` turns it back on). Measured on Windows: working went from 60% to 10% of a core, waiting from 77% to 12%, idle from 13% to about 9%, and memory from about 250 MB to 120 MB.
+- `dev/bench.ps1` measures CPU and memory per state on a separate test copy.
+- Code sprint: its typing words no longer pile up.
+
 ## 0.1.2
 
 - Right-click now opens one card instead of a plain menu. Its Home tab shows what Claude is doing, an Open Claude button (and Answer when Claude is waiting on you), and tiles for a trick, catch, the diary, a new form, a taskbar trick and hiding for 30 minutes. Corner moves and state previews moved to More. Keys 1 to 5 switch tabs.

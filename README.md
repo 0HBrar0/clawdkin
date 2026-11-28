@@ -130,7 +130,7 @@ npm test          # hook, installer and file checks (no Electron needed)
 npm run preview   # the character in a browser: http://127.0.0.1:5251/dev/gallery.html
 ```
 
-Set `CLAWDKIN_DEBUG` to `windows`, `motion`, `game`, `look`, `walk`, `tb`, `poke`, `thought` or `menu` before `npm start` to run a self-check that saves snapshots to `~/.clawdkin/debug` (PowerShell: `$env:CLAWDKIN_DEBUG='windows'; npm start`, bash: `CLAWDKIN_DEBUG=windows npm start`). `CLAWDKIN_HOME` moves the data folder. `dev/make-media.ps1` rebuilds the GIFs in `docs/`.
+Set `CLAWDKIN_DEBUG` to `windows`, `motion`, `game`, `look`, `walk`, `tb`, `poke`, `thought` or `menu` before `npm start` to run a self-check that saves snapshots to `~/.clawdkin/debug` (PowerShell: `$env:CLAWDKIN_DEBUG='windows'; npm start`, bash: `CLAWDKIN_DEBUG=windows npm start`). `CLAWDKIN_HOME` moves the data folder. `dev/make-media.ps1` rebuilds the GIFs in `docs/`, and `dev/bench.ps1` measures CPU and memory per state (idle, working, waiting) on a separate test copy. On Windows Clawdkin draws without the GPU process; `CLAWDKIN_GPU=1` turns it back on.
 
 Issues and pull requests are welcome. Please include the output of `npm run doctor` with bug reports, and `~/.clawdkin/errors.log` if it exists (errors from the app and its windows end up there).
 

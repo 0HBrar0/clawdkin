@@ -74,6 +74,7 @@
     if (antic) endAntic();
     morph = { fromName: formName, from: outline(formName), to: outline(name), fromCy: BB.forms[formName].cy || 0, toCy: BB.forms[name].cy || 0, toName: name, t0: performance.now(), swapped: false, announce };
     BB.sfx.play('morph');
+    wake();
   }
   function nextFormName() {
     const order = available();
@@ -88,10 +89,10 @@
   }
 
   // ---------- effects ----------
-  function particle(node, life, step) {
-    const t0 = performance.now();
-    const tick = (now) => { const k = clamp((now - t0) / life, 0, 1); step(k); if (k < 1) requestAnimationFrame(tick); else node.remove(); };
-    requestAnimationFrame(tick);
+  const parts = new Set(); // live particles, stepped by the main loop
+  function particle(node, life, step) { parts.add({ node, life, step, t0: performance.now() }); wake(); }
+  function stepParticles(now) {
+    for (const p of parts) { const k = clamp((now - p.t0) / p.life, 0, 1); p.step(k); if (k >= 1) { p.node.remove(); parts.delete(p); } }
   }
   function sparkles(x, y, count, o = {}) {
     const dir = o.dir ?? 0, spread = o.spread ?? Math.PI * 2, dist = o.dist ?? 52, size = o.size ?? 1, r0 = o.r0 ?? 16;
@@ -151,6 +152,7 @@
     if (!BB.antics[name]) name = BB.pick(BB.ANTIC_NAMES.filter((n) => !antic || n !== antic.name));
     endAntic();
     antic = { name, def: BB.antics[name], t0: performance.now(), fired: new Set(), every: {}, persist: {}, arg: arg || null };
+    wake();
     if (byUser) BB.sfx.play('pop');
   }
   function endAntic() {
@@ -245,13 +247,36 @@
   function setFlash(text, ms = 2600) { flash = { text, until: performance.now() + ms }; updateLabel(); }
 
   // ---------- main loop ----------
+  // Frame pacing. requestAnimationFrame alone runs at the display's refresh rate (144-240 Hz on many
+  // laptops), which made a busy Clawdkin cost most of a CPU core. Fast motion gets 60 fps, gentle motion
+  // 30, sleep 15; between frames the page sleeps on a timer, so nothing is drawn or composited.
+  const FPS = { fast: 60, gentle: 30, still: 20, sleep: 15 };
+  let eyesMoving = false;
+  let pending = false, sleeper = 0;
+  const go = () => { sleeper = 0; requestAnimationFrame((n) => { pending = false; frame(n); }); };
+  function nextFrameIn(ms) {
+    if (pending) return; pending = true;
+    if (ms > 6) sleeper = setTimeout(go, ms - 5); else go(); // rAF then waits for the next vsync
+  }
+  // something started (a trick, a sparkle, the mouse): don't wait out a slow frame
+  function wake() { if (sleeper) { clearTimeout(sleeper); go(); } }
+  function pace(now) {
+    const fast = antic || morph || walking || air || tbBusy || game.active || dragging || parts.size || boop
+      || now < petUntil || now - doneT0 < 1200 || hovering || now - feedHoverAt < 400 || now < winceUntil || (flash && now < flash.until);
+    if (fast) return FPS.fast;
+    if (shown === 'sleep') return FPS.sleep;
+    // idle and only breathing: 20 fps is plenty; a blink or a glance gets 30 so it stays smooth
+    if ((shown === 'idle' || shown === 'done') && blinkT < 0 && !eyesMoving) return FPS.still;
+    return FPS.gentle;
+  }
+  // the next frame is booked even if this one throws, so one bad frame can't freeze the pet
   function frame(now) {
-    requestAnimationFrame(frame);
-    const busy = antic || morph || walking || air || tbBusy || game.active || shown === 'working' || shown === 'waiting'
-      || now < petUntil || now - doneT0 < 1200 || hovering || now - feedHoverAt < 400 || now < winceUntil;
-    if (!busy && now - lastDraw < 31) return; // ~30 fps when calm
+    const start = performance.now();
+    try { draw(now); } finally { nextFrameIn(1000 / pace(now) - (performance.now() - start)); }
+  }
+  function draw(now) {
     lastDraw = now;
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const dt = Math.min(0.1, (now - last) / 1000);
     last = now;
     t += dt;
 
@@ -402,6 +427,7 @@
     const lk = Math.min(1, dt * 10);
     look.x = lerp(look.x, lt.x, lk);
     look.y = lerp(look.y, lt.y, lk);
+    eyesMoving = Math.abs(look.x - lt.x) + Math.abs(look.y - lt.y) > 0.05;
 
     let expr = shown === 'done' ? 'happy' : shown === 'sleep' ? 'closed' : shown === 'waiting' ? 'wide' : 'open';
     if (petting) expr = 'heart';
@@ -424,6 +450,43 @@
     extras.update({ t, dt, now, state: shown, cur, st, cfg, form: formName, morphing, bodyY: Y });
 
     if (flash && now > flash.until) { flash = null; updateLabel(); }
+    stepParticles(now);
+    ambient(now);
+  }
+
+  // ---------- looping touches, driven here so they share the frame cap (CSS keyframes run at the display rate) ----------
+  const zs = [...zzz.querySelectorAll('.z')];
+  const partyEls = [$('body'), $('fx')].filter(Boolean);
+  let sleepT0 = -1, waitT0 = -1, partyOn = false;
+  const NUDGE = [[0.6, 0, 1, 0], [0.68, -2, 1.08, -8], [0.76, -2, 1.08, 8], [0.84, 0, 1, 0]]; // [phase, y px, scale, deg]
+  function ambient(now) {
+    // the "needs you" bubble gives a little wiggle every 1.9 s
+    if (shown === 'waiting') {
+      if (waitT0 < 0) waitT0 = now;
+      const p = (((now - waitT0 - 300) / 1900) % 1 + 1) % 1;
+      let y = 0, s = 1, r = 0;
+      const i = NUDGE.findIndex((k, j) => j < NUDGE.length - 1 && p >= k[0] && p < NUDGE[j + 1][0]);
+      if (i >= 0) {
+        const a = NUDGE[i], b = NUDGE[i + 1], e = easeInOut((p - a[0]) / (b[0] - a[0]));
+        y = lerp(a[1], b[1], e); s = lerp(a[2], b[2], e); r = lerp(a[3], b[3], e);
+      }
+      bubble.style.translate = `0 ${fx2(y)}px`; bubble.style.scale = fx2(s); bubble.style.rotate = fx2(r) + 'deg';
+    } else if (waitT0 >= 0) { waitT0 = -1; bubble.style.translate = bubble.style.scale = bubble.style.rotate = ''; }
+    // sleeping z's drift up and fade, one after another
+    if (shown === 'sleep') {
+      if (sleepT0 < 0) sleepT0 = now;
+      zs.forEach((z, i) => {
+        const e = (now - sleepT0) / 1000 - i * 1.2;
+        if (e < 0) { z.style.opacity = 0; return; }
+        const p = (e % 3.6) / 3.6, q = easeInOut(p);
+        z.style.opacity = fx2(p < 0.25 ? 0.9 * p / 0.25 : 0.9 * (1 - (p - 0.25) / 0.75));
+        z.style.transform = `translate(${fx2(6 * q)}px,${fx2(6 - 16 * q)}px)`;
+      });
+    } else if (sleepT0 >= 0) { sleepT0 = -1; zs.forEach((z) => { z.style.opacity = 0; z.style.transform = ''; }); }
+    // party theme: the colour wheel turns once every 6 s
+    const party = document.documentElement.classList.contains('party');
+    if (party) { const f = `hue-rotate(${Math.round((now / 6000 % 1) * 360)}deg) drop-shadow(0 1px 1.5px rgba(40, 15, 5, 0.35))`; partyEls.forEach((el) => { el.style.filter = f; }); partyOn = true; }
+    else if (partyOn) { partyOn = false; partyEls.forEach((el) => { el.style.filter = ''; }); }
   }
 
   // ---------- config & state from main ----------
@@ -467,13 +530,14 @@
   BB.applyTheme(cfg.theme);
   scheduleAntic();
   requestAnimationFrame(frame);
+  for (const ev of ['pointerdown', 'pointermove', 'dragenter', 'dragover']) addEventListener(ev, wake, true);
 
   if (api) {
     api.getConfig().then(applyConfig);
     api.onConfig(applyConfig);
-    api.onState(applyState);
+    api.onState((s) => { applyState(s); wake(); });
     api.onCursor((c) => { cursor = { dx: c.dx, dy: c.dy, at: performance.now() }; });
-    api.onTrigger(onTrigger);
+    api.onTrigger((tr) => { onTrigger(tr); wake(); });
   }
 
   // ---------- mouse ----------
